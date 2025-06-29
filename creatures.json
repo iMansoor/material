@@ -95,6 +95,7 @@
     { "data-tippy-content": "Turkey", "data-type": "animal_turkey_eastern" },
     { "data-tippy-content": "Vulture - Eastern", "data-type": "animal_vulture_eastern" },
     { "data-tippy-content": "Vulture - Western", "data-type": "animal_vulture_western" },
-    { "data-tippy-content": "Waxwing", "data-type": "animal_cedarwaxwing" }
+    { "data-tippy-content": "Waxwing", "data-type": "animal_cedarwaxwing" },
+    { "data-tippy-content": "Macaw", "data-type": "animal_macaw" }
   ]
 }
