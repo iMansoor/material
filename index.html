@@ -20,7 +20,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 16px;
+      gap: 50px;
       margin-bottom: 30px;
     }
     input, button {
@@ -42,6 +42,8 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0 8px;
+      border-radius: 12px;
+      overflow: hidden;
     }
     th, td {
       padding: 16px 20px;
@@ -58,16 +60,6 @@
     td:nth-child(2) {
       padding-left: 40px;
     }
-    .animal-cell {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .animal-icon {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
-    }
     ul.suggestions {
       background: #181818;
       border: 1px solid #333;
@@ -75,7 +67,7 @@
       z-index: 10;
       max-height: 200px;
       overflow-y: auto;
-      width: 320px;
+      width: 100%;
       margin-top: 0;
       list-style: none;
       padding-left: 0;
@@ -84,9 +76,6 @@
     ul.suggestions li {
       padding: 10px 14px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
     ul.suggestions li:hover {
       background: #333;
@@ -97,6 +86,16 @@
       border: 1px solid #444;
       border-radius: 6px;
       padding: 10px 12px;
+    }
+    .animal-cell {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .animal-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
     }
     button {
       cursor: pointer;
@@ -119,96 +118,180 @@
     td button:last-child {
       color: #ff5c8d;
     }
+    td button:focus {
+      outline: none;
+    }
   </style>
 </head>
 <body>
-  <h1>Animal Logger</h1>
+  <h1>Animal Material Logger</h1>
   <div class="form">
-    <div style="position: relative;">
-      <input type="text" id="animalInput" placeholder="Animal or bird" oninput="onAnimalInput()" autocomplete="off" />
-      <ul id="suggestions" class="suggestions"></ul>
+    <div style="position: relative; flex-grow: 1; max-width: 300px;">
+      <input type="text" id="animalInput" placeholder="Animal or Bird" oninput="onAnimalInput()" autocomplete="off" style="width: 100%;" />
+      <ul id="suggestions" class="suggestions" style="display: none;"></ul>
     </div>
-    <input type="text" id="materialInput" placeholder="Material" />
-    <button onclick="addEntry()">Add</button>
+    <div style="flex-grow: 1; max-width: 100px;">
+      <input type="number" id="materialInput" placeholder="Material" disabled style="width: 100%;" />
+    </div>
+    <button onclick="addEntry()">+ Add</button>
   </div>
-  <table id="logTable">
-    <thead>
-      <tr><th>Animal or Bird</th><th>Material</th><th>Actions</th></tr>
-    </thead>
-    <tbody id="logBody"></tbody>
-  </table>
-  <script>
-    const ws = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
-    let sessionId = null;
 
-    const knownCreatures = [
-      "animal_alligator_little", "animal_alligator_medium", "animal_armadillo", "animal_bat", "animal_bear", "animal_bluejay", "animal_cardinal",
-      "animal_chicken_leghorn", "animal_crow", "animal_duck", "animal_eagle_golden", "animal_egret_reddish", "animal_goosecanada", "animal_hawk_ferruginous"
-    ];
-    const log = [];
+  <div class="search">
+    <input type="text" id="searchInput" placeholder="Search in table..." oninput="renderTable()" style="width: 100%;" />
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Creature</th><th>Material</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="logTable"></tbody>
+  </table>
+
+  <script>
+    const binId = "686101ff8561e97a502dfb0e";
+    const apiKey = "$2a$10$iCoTiXC5Q2rvlvgOvL51WOONZG9ZufQABohuhB0E71Pz7/QjgW4/.";
+    let entries = [];
+    let creatures = [];
+    let creaturesReady = false;
+
+    async function loadCreatures() {
+      try {
+        const res = await fetch("creatures.json");
+        const json = await res.json();
+        creatures = Array.isArray(json) ? json : json.creatures || [];
+        creaturesReady = true;
+        await loadEntries();
+      } catch (err) {
+        alert("Error loading creatures.json");
+        console.error(err);
+      }
+    }
+
+    async function loadEntries() {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+          headers: { "X-Master-Key": apiKey }
+        });
+        const data = await res.json();
+        entries = data.record || [];
+        renderTable();
+      } catch (err) {
+        alert("Error loading data from JSONBin");
+        console.error(err);
+      }
+    }
+
+    async function saveEntries() {
+      try {
+        await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": apiKey
+          },
+          body: JSON.stringify(entries)
+        });
+      } catch (err) {
+        alert("Error saving to JSONBin");
+        console.error(err);
+      }
+    }
 
     function getIconSrc(type) {
-      const birdTypes = ["animal_bluejay", "animal_cardinal", "animal_chicken_leghorn", "animal_crow", "animal_duck", "animal_eagle_golden", "animal_egret_reddish", "animal_goosecanada", "animal_hawk_ferruginous"];
+      const birdTypes = ["animal_bluejay", "animal_cardinal", "animal_chicken_leghorn", "animal_prairiechicken", "animal_californiancondor", "animal_cormorant_doublecrested", "animal_cormorant_neotropic", "animal_cranewhooping_whooping", "animal_crow", "animal_duck", "animal_eagle_golden", "animal_egret_reddish", "animal_goosecanada", "animal_hawk_ferruginous", "animal_heron_greatblue", "animal_loon_pacific", "animal_oriole_baltimore", "animal_oriole_hooded", "animal_owl_great", "animal_owl_californian", "animal_pelican_white", "animal_pheasant_ringneck", "animal_pigeon_bandtailed", "animal_quail", "animal_raven", "animal_robin", "animal_rooster_dominique", "animal_seagull_herring", "animal_songbird_scarlet", "animal_songbird_western", "animal_sparrow_eurasian", "animal_roseatespoonbill", "animal_turkey_eastern", "animal_vulture_eastern", "animal_vulture_western", "animal_cedarwaxwing"];
       const folder = birdTypes.includes(type) ? "bird_icons" : "animal_icons";
       return `${folder}/${type}.png`;
     }
 
     function onAnimalInput() {
-      const val = document.getElementById("animalInput").value.toLowerCase();
+      if (!creaturesReady) return;
+      const input = document.getElementById("animalInput");
       const list = document.getElementById("suggestions");
+      const query = input.value.toLowerCase();
       list.innerHTML = "";
-      knownCreatures.filter(c => c.includes(val)).forEach(type => {
+      const matches = creatures.filter(c => c["data-tippy-content"].toLowerCase().includes(query));
+
+      matches.forEach(creature => {
+        if (entries.find(e => e.name === creature["data-tippy-content"])) return;
         const li = document.createElement("li");
-        li.innerHTML = `<img src="${getIconSrc(type)}" class="animal-icon"> ${type}`;
+        li.innerHTML = `<div class="animal-cell"><img src="${getIconSrc(creature["data-type"])}" class="animal-icon" onerror="this.style.display='none'" />${creature["data-tippy-content"]}</div>`;
         li.onclick = () => {
-          document.getElementById("animalInput").value = type;
-          list.innerHTML = "";
+          input.value = creature["data-tippy-content"];
+          input.dataset.type = creature["data-type"];
+          list.style.display = "none";
+          document.getElementById("materialInput").disabled = false;
+          document.getElementById("materialInput").focus();
         };
         list.appendChild(li);
       });
+      list.style.display = matches.length ? "block" : "none";
     }
 
-    function addEntry() {
-      const animal = document.getElementById("animalInput").value.trim();
-      const material = document.getElementById("materialInput").value.trim();
-      if (!animal || !material) return;
-      if (log.find(entry => entry.animal.toLowerCase() === animal.toLowerCase())) return alert("Animal already added.");
+    document.addEventListener("click", e => {
+      const input = document.getElementById("animalInput");
+      const list = document.getElementById("suggestions");
+      if (!input.contains(e.target) && !list.contains(e.target)) list.style.display = "none";
+    });
 
-      log.push({ animal, material });
-      updateTable();
-      sendToDiscord(animal, material);
+    async function addEntry() {
+      const name = document.getElementById('animalInput').value;
+      const type = document.getElementById('animalInput').dataset.type;
+      const material = parseInt(document.getElementById('materialInput').value);
+      if (!type || !creatures.find(c => c["data-tippy-content"] === name)) return alert("Please select a valid animal from the list.");
+      if (isNaN(material)) return alert("Please enter a valid material number.");
+      if (entries.find(e => e.name === name)) return alert("This animal is already added.");
 
-      document.getElementById("animalInput").value = "";
-      document.getElementById("materialInput").value = "";
+      entries.push({ name, type, material });
+      document.getElementById('animalInput').value = '';
+      document.getElementById('animalInput').dataset.type = '';
+      document.getElementById('materialInput').value = '';
+      document.getElementById('materialInput').disabled = true;
+      await saveEntries();
+      renderTable();
     }
 
-    function updateTable() {
-      const tbody = document.getElementById("logBody");
-      tbody.innerHTML = "";
-      log.forEach((entry, index) => {
-        const icon = getIconSrc(entry.animal);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="animal-cell"><img src="${icon}" class="animal-icon" /> ${entry.animal}</td>
-          <td>${entry.material}</td>
-          <td><button onclick="removeEntry(${index})">×</button></td>`;
-        tbody.appendChild(tr);
+    async function confirmEdit(index) {
+      const newValue = document.getElementById(`material-${index}`).value;
+      if (!confirm("Are you sure you want to update the material?")) return;
+      const parsed = parseInt(newValue);
+      if (isNaN(parsed)) return alert("Invalid material value.");
+      entries[index].material = parsed;
+      await saveEntries();
+      renderTable();
+    }
+
+    async function confirmDelete(index) {
+      if (confirm("Are you sure you want to delete this entry?")) {
+        entries.splice(index, 1);
+        await saveEntries();
+        renderTable();
+      }
+    }
+
+    function renderTable() {
+      const table = document.getElementById('logTable');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      table.innerHTML = '';
+      entries.forEach((entry, index) => {
+        if (!entry.name.toLowerCase().includes(searchQuery)) return;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="animal-cell">
+            <img src="${getIconSrc(entry.type)}" class="animal-icon" onerror="this.style.display='none'" />
+            ${entry.name}
+          </td>
+          <td class="material-edit">
+            <input type="number" value="${entry.material}" id="material-${index}" />
+          </td>
+          <td>
+            <button onclick="confirmEdit(${index})">✏️</button>
+            <button onclick="confirmDelete(${index})">❌</button>
+          </td>`;
+        table.appendChild(row);
       });
     }
 
-    function removeEntry(index) {
-      log.splice(index, 1);
-      updateTable();
-    }
-
-    function sendToDiscord(animal, material) {
-      const message = `📋 **${animal}** collected with **${material}**.`;
-      fetch("https://discord.com/api/webhooks/1388625565841625088/wP11tL6stmTR0QCCXfOqQeaTGTIHdvL0dstv0zk8bJzGrBVJ2hBOJH7gTN7_4MGkXdVu", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: message })
-      });
-    }
+    loadCreatures();
   </script>
 </body>
 </html>
