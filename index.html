@@ -42,8 +42,6 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0 8px;
-      border-radius: 12px;
-      overflow: hidden;
     }
     th, td {
       padding: 16px 20px;
@@ -60,6 +58,16 @@
     td:nth-child(2) {
       padding-left: 40px;
     }
+    .animal-cell {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .animal-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
     ul.suggestions {
       background: #181818;
       border: 1px solid #333;
@@ -67,7 +75,7 @@
       z-index: 10;
       max-height: 200px;
       overflow-y: auto;
-      width: 100%;
+      width: 320px;
       margin-top: 0;
       list-style: none;
       padding-left: 0;
@@ -76,6 +84,9 @@
     ul.suggestions li {
       padding: 10px 14px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     ul.suggestions li:hover {
       background: #333;
@@ -86,16 +97,6 @@
       border: 1px solid #444;
       border-radius: 6px;
       padding: 10px 12px;
-    }
-    .animal-cell {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .animal-icon {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
     }
     button {
       cursor: pointer;
@@ -118,15 +119,15 @@
     td button:last-child {
       color: #ff5c8d;
     }
-    td button:focus {
-      outline: none;
-    }
   </style>
 </head>
 <body>
   <h1>Animal Logger</h1>
   <div class="form">
-    <input type="text" id="animalInput" placeholder="Animal or bird" />
+    <div style="position: relative;">
+      <input type="text" id="animalInput" placeholder="Animal or bird" oninput="onAnimalInput()" autocomplete="off" />
+      <ul id="suggestions" class="suggestions"></ul>
+    </div>
     <input type="text" id="materialInput" placeholder="Material" />
     <button onclick="addEntry()">Add</button>
   </div>
@@ -136,10 +137,36 @@
     </thead>
     <tbody id="logBody"></tbody>
   </table>
-
   <script>
-    const webhookUrl = "https://discord.com/api/webhooks/1388625565841625088/wP11tL6stmTR0QCCXfOqQeaTGTIHdvL0dstv0zk8bJzGrBVJ2hBOJH7gTN7_4MGkXdVu";
+    const ws = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
+    let sessionId = null;
+
+    const knownCreatures = [
+      "animal_alligator_little", "animal_alligator_medium", "animal_armadillo", "animal_bat", "animal_bear", "animal_bluejay", "animal_cardinal",
+      "animal_chicken_leghorn", "animal_crow", "animal_duck", "animal_eagle_golden", "animal_egret_reddish", "animal_goosecanada", "animal_hawk_ferruginous"
+    ];
     const log = [];
+
+    function getIconSrc(type) {
+      const birdTypes = ["animal_bluejay", "animal_cardinal", "animal_chicken_leghorn", "animal_crow", "animal_duck", "animal_eagle_golden", "animal_egret_reddish", "animal_goosecanada", "animal_hawk_ferruginous"];
+      const folder = birdTypes.includes(type) ? "bird_icons" : "animal_icons";
+      return `${folder}/${type}.png`;
+    }
+
+    function onAnimalInput() {
+      const val = document.getElementById("animalInput").value.toLowerCase();
+      const list = document.getElementById("suggestions");
+      list.innerHTML = "";
+      knownCreatures.filter(c => c.includes(val)).forEach(type => {
+        const li = document.createElement("li");
+        li.innerHTML = `<img src="${getIconSrc(type)}" class="animal-icon"> ${type}`;
+        li.onclick = () => {
+          document.getElementById("animalInput").value = type;
+          list.innerHTML = "";
+        };
+        list.appendChild(li);
+      });
+    }
 
     function addEntry() {
       const animal = document.getElementById("animalInput").value.trim();
@@ -159,13 +186,12 @@
       const tbody = document.getElementById("logBody");
       tbody.innerHTML = "";
       log.forEach((entry, index) => {
+        const icon = getIconSrc(entry.animal);
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${entry.animal}</td>
+          <td class="animal-cell"><img src="${icon}" class="animal-icon" /> ${entry.animal}</td>
           <td>${entry.material}</td>
-          <td>
-            <button onclick="removeEntry(${index})">×</button>
-          </td>`;
+          <td><button onclick="removeEntry(${index})">×</button></td>`;
         tbody.appendChild(tr);
       });
     }
@@ -176,12 +202,11 @@
     }
 
     function sendToDiscord(animal, material) {
-      fetch(webhookUrl, {
+      const message = `📋 **${animal}** collected with **${material}**.`;
+      fetch("https://discord.com/api/webhooks/1388625565841625088/wP11tL6stmTR0QCCXfOqQeaTGTIHdvL0dstv0zk8bJzGrBVJ2hBOJH7gTN7_4MGkXdVu", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: `📋 **${animal}** collected with **${material}**.`
-        })
+        body: JSON.stringify({ content: message })
       });
     }
   </script>
