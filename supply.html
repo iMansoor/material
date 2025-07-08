@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Supply Map</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #101010;
+      color: #f4f4f4;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+    .top-buttons {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .top-buttons a {
+      padding: 10px 20px;
+      margin: 0 10px;
+      background-color: #181818;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .top-buttons a:hover {
+      background-color: #2c2c2c;
+    }
+    .search-box {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-box input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background-color: #181818;
+      color: #fff;
+      font-size: 14px;
+      width: 200px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 10px;
+    }
+    .map-item {
+      background-color: #181818;
+      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .map-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .map-item img:hover {
+      opacity: 0.85;
+    }
+    .map-item span {
+      display: block;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <h1>📍 مواقع التسليم</h1>
+  <div class="top-buttons">
+    <a href="animal.html">🐾 العودة لصفحة متيريال الحيوانات</a>
+  </div>
+  <div class="search-box">
+    <input type="number" id="searchInput" placeholder="ابحث برقم الموقع..." min="1" max="100" oninput="filterLocations()" />
+  </div>
+  <div class="grid" id="mapGrid"></div>
+  <script>
+    const grid = document.getElementById('mapGrid');
+
+    for (let i = 1; i <= 100; i++) {
+      const filename = `${i}.jpg`;
+      const div = document.createElement('div');
+      div.className = 'map-item';
+      div.dataset.index = i;
+      const img = document.createElement('img');
+      img.src = `map/${filename}`;
+      img.alt = `Map ${i}`;
+      img.onload = () => {
+        const link = document.createElement('a');
+        link.href = `map/${filename}`;
+        link.target = '_blank';
+        link.appendChild(img);
+        div.innerHTML = '';
+        div.appendChild(link);
+        const label = document.createElement('span');
+        label.textContent = `موقع رقم ${i}`;
+        div.appendChild(label);
+      };
+      img.onerror = () => {
+        div.innerHTML = `
+          <div style="border: 1px dashed red; padding: 30px; border-radius: 6px; background-color: #2a0000;">الصورة مفقودة</div>
+          <span>موقع رقم ${i}</span>
+        `;
+      };
+      grid.appendChild(div);
+    }
+
+    function filterLocations() {
+      const val = document.getElementById("searchInput").value;
+      const items = document.querySelectorAll(".map-item");
+      items.forEach(item => {
+        if (!val || item.dataset.index === val) {
+          item.classList.remove("hidden");
+        } else {
+          item.classList.add("hidden");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
