@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supply Locations</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>مواقع التسليم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Cairo', sans-serif;
       background: #111;
       color: #fff;
     }
@@ -163,13 +163,13 @@
   <header>
     <img src="logo.png" alt="Logo" class="logo">
     <div class="main-buttons">
-      <a href="animal.html"><img src="animal.svg" alt="Animal Icon">Animal List</a>
-      <a href="supply.html"><img src="supply.svg" alt="Supply Icon">Supply Locations</a>
+      <a href="animal.html"><img src="animal.svg" alt="Animal Icon">قائمة الحيوانات</a>
+      <a href="supply.html"><img src="supply.svg" alt="Supply Icon">مواقع التسليم</a>
     </div>
     <a href="https://discord.com/users/406011855283290143" target="_blank"><img src="support.svg" alt="Support" class="support-icon"></a>
   </header>
   <div class="search-box">
-    <input type="number" id="searchInput" placeholder="Search by location number..." min="1" max="100" oninput="filterLocations()" />
+    <input type="number" id="searchInput" placeholder="بحث" min="1" max="100" oninput="filterLocations()" />
   </div>
   <div class="grid" id="mapGrid"></div>
   <div class="modal" id="imageModal">
@@ -178,7 +178,7 @@
       <button onclick="zoomOut()">-</button>
       <button onclick="closeModal()">✖ Close</button>
     </div>
-    <img id="modalImg" src="" alt="Location" />
+    <img id="modalImg" src="" alt="موقع رقم" />
   </div>
   <script>
     const grid = document.getElementById('mapGrid');
@@ -198,13 +198,13 @@
         div.innerHTML = '';
         div.appendChild(img);
         const label = document.createElement('span');
-        label.textContent = `Location ${i}`;
+        label.textContent = `موقع رقم ${i}`;
         div.appendChild(label);
       };
       img.onerror = () => {
         div.innerHTML = `
-          <div style="border: 1px dashed red; padding: 30px; border-radius: 6px; background-color: #2a0000;">Location Missing</div>
-          <span>Location ${i}</span>
+          <div style="border: 1px dashed red; padding: 30px; border-radius: 6px; background-color: #2a0000;">موقع التسليم مفقود</div>
+          <span>موقع ${i}</span>
         `;
       };
       grid.appendChild(div);
