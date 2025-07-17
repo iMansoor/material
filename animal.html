@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Animals List</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>قائمة الحيوانات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Cairo', sans-serif;
       background: #111;
       color: #fff;
     }
@@ -235,28 +235,28 @@
 <header>
     <img src="logo.png" alt="Logo" class="logo">
     <div class="main-buttons">
-      <a href="animal.html"><img src="animal.svg" alt="Animal Icon">Animals List</a>
-      <a href="supply.html"><img src="supply.svg" alt="Supply Icon">Supply Locations</a>
+      <a href="animal.html"><img src="animal.svg" alt="Animal Icon">قائمة الحيوانات</a>
+      <a href="supply.html"><img src="supply.svg" alt="Supply Icon">مواقع التسليم</a>
     </div>
     <a href="https://discord.com/users/406011855283290143" target="_blank"><img src="support.svg" alt="Support" class="support-icon"></a>
   </header>
 <div class="form">
   <div style="position: relative; flex: 1;">
-    <input type="text" id="animalInput" placeholder="Animal name..." oninput="onAnimalInput()" autocomplete="off">
+    <input type="text" id="animalInput" placeholder="اسم الحيوان..." oninput="onAnimalInput()" autocomplete="off">
     <div id="suggestions" class="suggestions"></div>
   </div>
-  <input type="number" id="materialInput" placeholder="Material">
-  <button onclick="addEntry()">Add Animal</button>
+  <input type="number" id="materialInput" placeholder="المتيريال">
+  <button onclick="addEntry()">إضافة الحيوان</button>
 </div>
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder="Search" oninput="renderTable()" />
+  <input type="text" id="searchInput" placeholder="بحث" oninput="renderTable()" />
 </div>
 <table>
   <thead>
     <tr>
-      <th>Animal</th>
-      <th>Material</th>
-      <th>Actions</th>
+      <th>الحيوان</th>
+      <th>المتيريال</th>
+      <th>الإجراءات</th>
     </tr>
   </thead>
   <tbody id="logTable"></tbody>
@@ -404,10 +404,11 @@
         </td>
         <td>
           <button onclick="confirmEdit(${entry._index}, ${rowIndex})" style="background: none; border: none; padding: 0; cursor: pointer;">
-            <img src="edit.svg" alt="Edit" style="width: 30px; height: 30px;" />
+            <img src="edit.svg" alt="تعديل" style="width: 30px; height: 30px;" />
           </button>
           <button onclick="confirmDelete(${entry._index})" style="background: none; border: none; padding: 0; cursor: pointer;">
-            <img src="delete.svg" alt="Delete" style="width: 30px; height: 30px;" />
+            <img src="delete.svg" alt="حذف" style="width: 30px; height: 30px;" />
+
           </button>
         </td>`;
       table.appendChild(row);
