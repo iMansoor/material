@@ -3,58 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مواقع التسليم</title>
+  <title>Supply Locations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #101010;
-      color: #f4f4f4;
-      padding: 30px;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #111;
+      color: #fff;
     }
-    h1 {
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 20px;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1a1a1a;
+      padding: 10px 20px;
     }
-    .top-buttons {
+    .logo {
+      height: 30px;
+    }
+    .support-icon {
+      height: 24px;
+    }
+    .main-buttons {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
+      gap: 20px;
+      flex: 1;
     }
-    .top-buttons a {
-      padding: 10px 20px;
-      margin: 0 10px;
-      background-color: #181818;
+    .main-buttons a {
+      padding: 5px 2px;
+      font-size: 13px;
+      background: none;
+      border: none;
       color: #fff;
-      border: 1px solid #444;
-      border-radius: 8px;
       text-decoration: none;
-      transition: 0.2s;
+      position: relative;
+      transition: color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
     }
-    .top-buttons a:hover {
-      background-color: #2c2c2c;
+    .main-buttons a::after {
+      content: '';
+      position: absolute;
+      bottom: -42px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: white;
+      transition: width 0.3s ease;
+      transform: translateY(-34px);
+    }
+    .main-buttons a:hover::after {
+      width: 100%;
+      transform: translateY(-34px);
+    }
+    .main-buttons a[href="animal.html"] img {
+      content: url("animal.svg");
+    }
+    .main-buttons a[href="supply.html"] img {
+      content: url("supply.svg");
     }
     .search-box {
-      text-align: center;
-      margin-bottom: 20px;
+      max-width: 1340px;
+      width: 90%;
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
     .search-box input {
-      padding: 10px;
-      border-radius: 8px;
+      padding: 15px;
+      border-radius: 6px;
       border: 1px solid #444;
-      background-color: #181818;
+      background: #181818 url('search.svg') no-repeat 10px center;
+      background-size: 20px;
       color: #fff;
-      font-size: 14px;
-      width: 200px;
+      flex: 1;
+      max-width: 250px;
+      padding-left: 40px;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 20px;
       padding: 10px;
+      max-width: 1340px;
+      margin: 0 auto;
     }
     .map-item {
-      background-color: #181818;
+      background: #181818;
       border: 1px solid #333;
       padding: 10px;
       border-radius: 8px;
@@ -119,57 +160,55 @@
   </style>
 </head>
 <body>
-  <h1>📍 مواقع التسليم</h1>
-  <div class="top-buttons">
-    <a href="animal.html">🐾 العودة لمتيريال الحيوانات</a>
-  </div>
+  <header>
+    <img src="logo.png" alt="Logo" class="logo">
+    <div class="main-buttons">
+      <a href="animal.html"><img src="animal.svg" alt="Animal Icon">Animal List</a>
+      <a href="supply.html"><img src="supply.svg" alt="Supply Icon">Supply Locations</a>
+    </div>
+    <a href="https://discord.com/users/406011855283290143" target="_blank"><img src="support.svg" alt="Support" class="support-icon"></a>
+  </header>
   <div class="search-box">
-    <input type="number" id="searchInput" placeholder="ابحث برقم الموقع..." min="1" max="100" oninput="filterLocations()" />
+    <input type="number" id="searchInput" placeholder="Search by location number..." min="1" max="100" oninput="filterLocations()" />
   </div>
   <div class="grid" id="mapGrid"></div>
-
   <div class="modal" id="imageModal">
     <div class="modal-controls-wrapper">
       <button onclick="zoomIn()">+</button>
       <button onclick="zoomOut()">-</button>
-      <button onclick="closeModal()">✖ إغلاق</button>
+      <button onclick="closeModal()">✖ Close</button>
     </div>
-    <img id="modalImg" src="" alt="موقع" />
+    <img id="modalImg" src="" alt="Location" />
   </div>
-
   <script>
     const grid = document.getElementById('mapGrid');
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImg');
     let zoomLevel = 1;
-
     for (let i = 1; i <= 75; i++) {
       const filename = `${i}.jpg`;
       const div = document.createElement('div');
       div.className = 'map-item';
       div.dataset.index = i;
-
       const img = document.createElement('img');
       img.src = `map/${filename}`;
       img.alt = `Map ${i}`;
       img.onclick = () => openModal(`map/${filename}`);
-
       img.onload = () => {
         div.innerHTML = '';
         div.appendChild(img);
         const label = document.createElement('span');
-        label.textContent = `موقع رقم ${i}`;
+        label.textContent = `Location ${i}`;
         div.appendChild(label);
       };
       img.onerror = () => {
         div.innerHTML = `
-          <div style="border: 1px dashed red; padding: 30px; border-radius: 6px; background-color: #2a0000;">موقع التسليم مفقود</div>
-          <span>موقع رقم ${i}</span>
+          <div style="border: 1px dashed red; padding: 30px; border-radius: 6px; background-color: #2a0000;">Location Missing</div>
+          <span>Location ${i}</span>
         `;
       };
       grid.appendChild(div);
     }
-
     function filterLocations() {
       const val = document.getElementById("searchInput").value;
       const items = document.querySelectorAll(".map-item");
@@ -181,29 +220,24 @@
         }
       });
     }
-
     function openModal(src) {
       modalImg.src = src;
       zoomLevel = 1;
       modalImg.style.transform = `scale(${zoomLevel})`;
       modal.style.display = 'flex';
     }
-
     function closeModal() {
       modal.style.display = 'none';
       modalImg.src = '';
     }
-
     function zoomIn() {
       zoomLevel += 0.2;
       modalImg.style.transform = `scale(${zoomLevel})`;
     }
-
     function zoomOut() {
       zoomLevel = Math.max(0.4, zoomLevel - 0.2);
       modalImg.style.transform = `scale(${zoomLevel})`;
     }
-
     window.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeModal();
     });
