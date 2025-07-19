@@ -140,7 +140,7 @@ const horsesImgPath = 'horses/';
 let horses = [];
 
 function parseLevelDots(val) {
-  // مثل: "3(2)" → 3 أبيض، 2 رمادي فاتح، 5 رمادي غامق
+  // مثل: "3(2)" → 3 أبيض، 2 ذهبي يدل على التدريب، 5 رمادي غامق
   if (!val) return '';
   let match = val.match(/(\d+)\((\d+)\)/);
   if (!match) return '';
@@ -152,10 +152,11 @@ function parseLevelDots(val) {
   for (let i = 0; i < white; i++)
     dots += '<span style="color:#fff;">●</span>';
   for (let i = 0; i < lightGray; i++)
-    dots += '<span style="color:#aaa;">●</span>';
+    dots += '<span style="color:#FFD700;">●</span>';
   for (let i = 0; i < darkGray; i++)
     dots += '<span style="color:#333;">●</span>';
   return dots;
+  
 }
 
 function renderPrice(price) {
